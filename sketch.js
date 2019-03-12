@@ -8,8 +8,11 @@ let right = false;
 
 let neat;
 var Neat = neataptic.Neat;
-var Architect = neataptic.Architect;
+var Node = neataptic.Node;
+var Neat = neataptic.Neat;
+var Network = neataptic.Network;
 var Methods = neataptic.Methods;
+var Architect = neataptic.Architect;
 
 let PLAYER_AMOUNT = 100;
 let MUTATION_RATE = 0.3;
@@ -103,6 +106,9 @@ function startEvaluation(){
   for(var genome in neat.population){
     cars.push(new Car(startPos.x, startPos.y, neat.population[genome]));
   }
+
+  //initDisplayBrain(cars[0].brain);
+  drawGraph(cars[0].brain.graph(1000, 400), '.draw');
 }
 
 function endEvaluation(){
@@ -118,7 +124,6 @@ function endEvaluation(){
   // Elitism
   for(var i = 0; i < neat.elitism; i++){
     newPopulation.push(neat.population[i]);
-    console.log("elitism " + i);
   }
 
   // Breed the next individuals
@@ -133,6 +138,82 @@ function endEvaluation(){
   neat.generation++;
   startEvaluation();
 }
+
+/*
+function initDisplayBrain(brain){
+  brain.nodes.forEach(node => {
+    if(node.connections.in.length == 0){
+      setNodeDepth(node, 0);
+    }
+  });
+
+  let pos = {};
+  brain.nodes.forEach(node => {
+    if(!pos[node.depth])
+      pos[node.depth] = 0;
+    node.pos = pos[node.depth];
+    pos[node.depth] += 1;
+  });
+
+  brain.nbNodesPerLayers = brain.nodes.reduce((acc, node) => {
+    if(!acc[node.depth])
+      acc[node.depth] = 0;
+    acc[node.depth] += 1;
+    return acc;
+  }, {});
+  brain.biggestLayerNbNodes = Math.max(...Object.keys(brain.nbNodesPerLayers).map(key => brain.nbNodesPerLayers[key]));
+}
+
+function setNodeDepth(node, depth){
+  node.depth = !!node.depth ? Math.max(depth, node.depth) : depth;
+  node.connections.out.forEach(connection => {
+    if(connection.to != node)
+      setNodeDepth(connection.to, depth + 1);
+  });
+}
+
+function getDepthBrain(brain){
+  return brain.nodes.map(node => node.depth).reduce((acc, cur) => Math.max(acc, cur), 0) + 1;
+}
+
+function getNodePos(node, brain, marginNodes){
+  let yCenter = (brain.biggestLayerNbNodes - 1) * marginNodes.y / 2 - (brain.nbNodesPerLayers[node.depth] - 1) * marginNodes.y / 2;
+  return {x: marginNodes.x * node.depth, y: yCenter + marginNodes.y * node.pos}
+}
+
+function displayBrain(brain){
+  let marginNodes = {x: 100, y: 40};
+  let nodeSize = 15;
+  push();
+  ellipseMode(CENTER);
+  translate(width - marginNodes.x * getDepthBrain(brain), marginNodes.y);
+  brain.nodes.forEach(node => {
+    let pos = getNodePos(node, brain, marginNodes);
+    node.connections.out.forEach(connection => {
+      nextNodePos = getNodePos(connection.to, brain, marginNodes);
+      if(Math.sign(connection.weight) > 0)
+        stroke(0, 255, 0);
+      else
+        stroke(255, 0, 0);
+      strokeWeight(map(Math.abs(connection.weight), 0, 1, 1, 5));
+      line(pos.x, pos.y, nextNodePos.x, nextNodePos.y);
+    })
+  });
+  brain.nodes.forEach(node => {
+    stroke(0);
+    strokeWeight(1);
+    if(node.connections.out.length == 0)
+      fill(150, 0, 0);
+    else if(node.connections.in.length == 0)
+      fill(0, 150, 0);
+    else
+      fill(255);
+    let pos = getNodePos(node, brain, marginNodes);
+    ellipse(pos.x, pos.y, nodeSize, nodeSize);
+  });
+  pop();
+}
+*/
 
 function updateSimulation(){
   if(allDead()){
@@ -207,6 +288,9 @@ function displaySimulation(){
   text("Generation " + neat.generation, 10, 20);
   text("Simulation speed " + simulationSpeed, 10, 35);
   text("Max score " + maxScore(), 10, 50);
+
+  //console.log(cars[0].brain);
+  //displayBrain(cars[0].brain);
 }
 
 function draw() {
@@ -257,7 +341,6 @@ function keyPressed() {
     startEvaluation();
     pause = false;
   }
-  console.log(key);
   if(key == 'e') {
     paths.push(newPath);
     newPath = [];

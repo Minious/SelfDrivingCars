@@ -126,6 +126,6 @@ function Car(x, y, brain) {
 
 Car.nbVisions = 10;
 Car.minSpeed = 0.5;
-Car.visionLength = 60;
+Car.visionLength = 70;
 Car.turnPower = 0.07;
 Car.speed = 2.5;
